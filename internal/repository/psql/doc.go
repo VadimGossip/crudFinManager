@@ -3,6 +3,7 @@ package psql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 )
 
@@ -14,17 +15,17 @@ func NewDocs(db *sql.DB) *Docs {
 	return &Docs{db: db}
 }
 
-func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int64, error) {
-	var id int64
+func (d *Docs) Create(ctx context.Context, doc *domain.Doc) error {
 	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated)" +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id"
-	err := d.db.QueryRow(createStmt,
+		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, doc_date, created, updated"
+	err := d.db.QueryRowContext(ctx, createStmt,
 		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
-		Scan(&id)
+		Scan(&doc.ID, &doc.DocDate, &doc.Created, &doc.Updated)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return id, err
+	fmt.Println(doc)
+	return err
 }
 
 //

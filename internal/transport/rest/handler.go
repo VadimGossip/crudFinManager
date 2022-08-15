@@ -2,14 +2,16 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 )
 
 type Docs interface {
-	Create(ctx context.Context, doc domain.Doc) (int64, error)
+	Create(ctx context.Context, doc *domain.Doc) error
 }
 
 type Handler struct {
@@ -37,10 +39,10 @@ func (h *Handler) createDoc(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
 		return
 	}
-	id, err := h.docsService.Create(context.TODO(), doc)
+	err := h.docsService.Create(context.TODO(), &doc)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Can't create doc. Error: ": err.Error()})
 	}
 
-	c.JSON(http.StatusCreated, id)
+	c.JSON(http.StatusCreated, fmt.Sprintf("Financial doc id = %d created %s", doc.ID, doc.Created.Format(time.RFC3339)))
 }
