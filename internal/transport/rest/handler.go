@@ -29,6 +29,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	docsApi := router.Group("/docs")
 	{
 		docsApi.POST("/create", h.createDoc)
+		docsApi.GET("/list")
+		docsApi.GET("/{id:[0-9]+}")
+		docsApi.DELETE("/{id:[0-9]+}")
+		docsApi.PUT("/{id:[0-9]+}")
 	}
 	return router
 }
