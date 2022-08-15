@@ -14,13 +14,17 @@ func NewDocs(db *sql.DB) *Docs {
 	return &Docs{db: db}
 }
 
-func (d *Docs) Create(ctx context.Context, doc domain.Doc) error {
+func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int64, error) {
+	var id int64
 	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated)" +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-	_, err := d.db.Exec(createStmt,
-		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated)
-
-	return err
+		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id"
+	err := d.db.QueryRow(createStmt,
+		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
+		Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, err
 }
 
 //

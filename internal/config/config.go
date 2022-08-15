@@ -19,8 +19,8 @@ type PostgresConfig struct {
 }
 
 type Config struct {
-	ServerListenerTcp NetServerConfig
-	Postgres          PostgresConfig
+	Server   NetServerConfig
+	Postgres PostgresConfig
 }
 
 func parseConfigFile(configDir string) error {
@@ -34,7 +34,7 @@ func parseConfigFile(configDir string) error {
 }
 
 func unmarshal(cfg *Config) error {
-	if err := viper.UnmarshalKey("serverListener.tcp", &cfg.ServerListenerTcp); err != nil {
+	if err := viper.UnmarshalKey("serverListener.tcp", &cfg.Server); err != nil {
 		return err
 	}
 	if err := viper.UnmarshalKey("postgres", &cfg.Postgres); err != nil {

@@ -8,7 +8,7 @@ import (
 )
 
 type DocsRepository interface {
-	Create(ctx context.Context, doc domain.Doc) error
+	Create(ctx context.Context, doc domain.Doc) (int64, error)
 }
 
 type Docs struct {
@@ -21,7 +21,7 @@ func NewBooks(repo DocsRepository) *Docs {
 	}
 }
 
-func (d *Docs) Create(ctx context.Context, doc domain.Doc) error {
+func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int64, error) {
 	doc.Created = time.Now()
 	doc.Updated = doc.Created
 	if doc.DocDate.IsZero() {
