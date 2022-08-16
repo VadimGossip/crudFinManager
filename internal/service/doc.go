@@ -8,11 +8,11 @@ import (
 )
 
 type DocsRepository interface {
-	Create(ctx context.Context, doc *domain.Doc) error
-	GetDocByID(ctx context.Context, id int64) (domain.Doc, error)
+	Create(ctx context.Context, doc domain.Doc) (int, error)
+	GetDocByID(ctx context.Context, id int) (domain.Doc, error)
 	GetAllDocs(ctx context.Context) ([]domain.Doc, error)
-	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, id int64, inp domain.UpdateDocInput) error
+	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, inp domain.UpdateDocInput) error
 }
 
 type Docs struct {
@@ -25,7 +25,7 @@ func NewBooks(repo DocsRepository) *Docs {
 	}
 }
 
-func (d *Docs) Create(ctx context.Context, doc *domain.Doc) error {
+func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
 	doc.Created = time.Now()
 	doc.Updated = doc.Created
 	if doc.DocDate.IsZero() {
@@ -34,7 +34,7 @@ func (d *Docs) Create(ctx context.Context, doc *domain.Doc) error {
 	return d.repo.Create(ctx, doc)
 }
 
-func (d *Docs) GetDocByID(ctx context.Context, id int64) (domain.Doc, error) {
+func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 	return d.repo.GetDocByID(ctx, id)
 }
 
@@ -42,10 +42,13 @@ func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {
 	return d.repo.GetAllDocs(ctx)
 }
 
-func (d *Docs) Delete(ctx context.Context, id int64) error {
+func (d *Docs) Delete(ctx context.Context, id int) error {
 	return d.repo.Delete(ctx, id)
 }
 
-func (d *Docs) Update(ctx context.Context, id int64, inp domain.UpdateDocInput) error {
+func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) error {
+	if err := inp.Validate(); err != nil {
+		return err
+	}
 	return d.repo.Update(ctx, id, inp)
 }

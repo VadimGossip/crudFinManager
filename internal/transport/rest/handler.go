@@ -3,20 +3,18 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"time"
-
-	"github.com/VadimGossip/crudFinManager/internal/domain"
 )
 
 type Docs interface {
-	Create(ctx context.Context, doc *domain.Doc) error
-	GetDocByID(ctx context.Context, id int64) (domain.Doc, error)
+	Create(ctx context.Context, doc domain.Doc) (int, error)
+	GetDocByID(ctx context.Context, id int) (domain.Doc, error)
 	GetAllDocs(ctx context.Context) ([]domain.Doc, error)
-	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, id int64, inp domain.UpdateDocInput) error
+	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, inp domain.UpdateDocInput) error
 }
 
 type Handler struct {
@@ -36,8 +34,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		docsApi.POST("/create", h.createDoc)
 		docsApi.GET("", h.getDocByID)
 		docsApi.GET("/list", h.GetAllDocs)
-		docsApi.DELETE("/{id:[0-9]+}")
-		docsApi.PUT("/{id:[0-9]+}")
+		docsApi.DELETE("", h.deleteDoc)
+		docsApi.PUT("", h.updateDocByID)
 	}
 	return router
 }
@@ -48,17 +46,17 @@ func (h *Handler) createDoc(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	err := h.docsService.Create(context.TODO(), &doc)
+	id, err := h.docsService.Create(context.TODO(), doc)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Can't create doc. Error: %s", err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, fmt.Sprintf("Financial doc id = %d created %s", doc.ID, doc.Created.Format(time.RFC3339)))
+	c.JSON(http.StatusCreated, domain.CreateDocResponse{ID: id})
 }
 
 func (h *Handler) getDocByID(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Query("id"), 10, 64)
+	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid id param: %s", err.Error()))
 		return
@@ -81,4 +79,40 @@ func (h *Handler) GetAllDocs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, domain.GetAllDocsResponse{Docs: docs})
+}
+
+func (h *Handler) deleteDoc(c *gin.Context) {
+	id, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid id param: %s", err.Error()))
+		return
+	}
+
+	if err := h.docsService.Delete(context.TODO(), id); err != nil {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Deleting doc. Error: %s", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.DeleteDocResponse{Status: "ok"})
+}
+
+func (h *Handler) updateDocByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Query("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid id param: %s", err.Error()))
+		return
+	}
+
+	var input domain.UpdateDocInput
+	if err := c.BindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := h.docsService.Update(context.TODO(), id, input); err != nil {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Updating doc. Error: %s", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.UpdateDocResponse{Status: "ok"})
 }
