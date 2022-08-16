@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/VadimGossip/crudFinManager/internal/config"
 )
@@ -20,7 +21,9 @@ func (s *Server) Run(netConfig config.NetServerConfig, handler http.Handler) err
 	s.httpServer = &http.Server{
 		Addr:           netConfig.Host + ":" + strconv.Itoa(netConfig.Port),
 		Handler:        handler,
-		MaxHeaderBytes: 1 << 20, // 1 MB,
+		MaxHeaderBytes: 1 << 20, // 1 MB
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
 	}
 
 	return s.httpServer.ListenAndServe()

@@ -35,7 +35,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		docsApi.POST("/create", h.createDoc)
 		docsApi.GET("/list")
-		docsApi.GET("/", h.getDocByID)
+		docsApi.GET("", h.getDocByID)
 		docsApi.DELETE("/{id:[0-9]+}")
 		docsApi.PUT("/{id:[0-9]+}")
 	}
