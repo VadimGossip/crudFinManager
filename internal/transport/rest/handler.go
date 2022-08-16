@@ -34,8 +34,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	docsApi := router.Group("/docs")
 	{
 		docsApi.POST("/create", h.createDoc)
-		docsApi.GET("/list")
 		docsApi.GET("", h.getDocByID)
+		docsApi.GET("/list", h.GetAllDocs)
 		docsApi.DELETE("/{id:[0-9]+}")
 		docsApi.PUT("/{id:[0-9]+}")
 	}
@@ -44,13 +44,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 func (h *Handler) createDoc(c *gin.Context) {
 	var doc domain.Doc
-	if err := c.ShouldBindJSON(&doc); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error: ": err.Error()})
+	if err := c.BindJSON(&doc); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	err := h.docsService.Create(context.TODO(), &doc)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Can't create doc. Error: ": err.Error()})
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Can't create doc. Error: %s", err.Error()))
 		return
 	}
 
@@ -60,15 +60,25 @@ func (h *Handler) createDoc(c *gin.Context) {
 func (h *Handler) getDocByID(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Query("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"invalid id param: ": err.Error()})
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Invalid id param: %s", err.Error()))
 		return
 	}
 
 	doc, err := h.docsService.GetDocByID(context.TODO(), id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Searching for doc. Error: ": err.Error()})
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Searching for doc. Error: %s", err.Error()))
 		return
 	}
 
 	c.JSON(http.StatusOK, doc)
+}
+
+func (h *Handler) GetAllDocs(c *gin.Context) {
+	docs, err := h.docsService.GetAllDocs(context.TODO())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Searching for doc list. Error: %s", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.GetAllDocsResponse{Docs: docs})
 }
