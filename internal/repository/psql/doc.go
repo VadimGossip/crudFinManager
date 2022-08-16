@@ -43,7 +43,8 @@ func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 }
 
 func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {
-	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated from docs"
+	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated" +
+		" from docs"
 	rows, err := d.db.QueryContext(ctx, selectStmt)
 	if err != nil {
 		return nil, err
