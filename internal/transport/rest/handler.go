@@ -54,13 +54,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 // @Produce json
 // @Param input body domain.Doc true "document info"
 // @Success 201 {integer} {object} createDocResponse
-// @Failure 400,404 {object} string
+// @Failure 400 {object} string
 // @Failure 500 {object} string
 // @Failure default {object} string
 // @Router /docs/create [post]
 func (h *Handler) createDoc(c *gin.Context) {
 	var doc domain.Doc
-	if err := c.BindJSON(&doc); err != nil {
+	if err := c.ShouldBind(&doc); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}

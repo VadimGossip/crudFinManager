@@ -1,0 +1,79 @@
+basePath: /
+definitions:
+  domain.Doc:
+    properties:
+      amount:
+        type: number
+      amount_usd:
+        type: number
+      counterparty:
+        type: string
+      created:
+        type: string
+      doc_currency:
+        type: string
+      doc_date:
+        type: string
+      id:
+        type: integer
+      notes:
+        type: string
+      type:
+        type: string
+      updated:
+        type: string
+    required:
+    - amount
+    - amount_usd
+    - counterparty
+    - doc_currency
+    - notes
+    - type
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for Fin Manager Application
+  title: Fin Manager App API
+  version: "1.0"
+paths:
+  /docs/create:
+    post:
+      consumes:
+      - application/json
+      description: create financial document
+      operationId: create-doc
+      parameters:
+      - description: document info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Doc'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: Create Financial document
+      tags:
+      - docs
+swagger: "2.0"

@@ -9,11 +9,11 @@ type Doc struct {
 	ID           int       `json:"id"`
 	Type         string    `json:"type" binding:"required"`
 	Counterparty string    `json:"counterparty" binding:"required"`
-	Amount       float64   `json:"amount" binding:"required"`
+	Amount       *float64  `json:"amount" binding:"required,min=0"`
 	DocCurrency  string    `json:"doc_currency" binding:"required"`
-	AmountUsd    float64   `json:"amount_usd" binding:"required"`
+	AmountUsd    *float64  `json:"amount_usd" binding:"required,min=0"`
 	DocDate      time.Time `json:"doc_date"`
-	Notes        string    `json:"notes" binding:"required"`
+	Notes        string    `json:"notes"`
 	Created      time.Time `json:"created"`
 	Updated      time.Time `json:"updated"`
 }
