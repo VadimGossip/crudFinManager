@@ -17,6 +17,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// @title Fin Manager App API
+// @version 1.0
+// @description API Server for Fin Manager Application
+
+// @host localhost:8080
+// @BasePath /
+
 func Run(configDir string) {
 	cfg, err := config.Init(configDir)
 	if err != nil {

@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	_ "github.com/VadimGossip/crudFinManager/docs"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 type Docs interface {
@@ -29,6 +33,8 @@ func NewHandler(docs Docs) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	docsApi := router.Group("/docs")
 	{
 		docsApi.POST("/create", h.createDoc)
@@ -40,6 +46,18 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	return router
 }
 
+// @Summary Create Financial document
+// @Tags docs
+// @Description create financial document
+// @ID create-doc
+// @Accept json
+// @Produce json
+// @Param input body domain.Doc true "document info"
+// @Success 201 {integer} {object} createDocResponse
+// @Failure 400,404 {object} string
+// @Failure 500 {object} string
+// @Failure default {object} string
+// @Router /docs/create [post]
 func (h *Handler) createDoc(c *gin.Context) {
 	var doc domain.Doc
 	if err := c.BindJSON(&doc); err != nil {

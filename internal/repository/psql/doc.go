@@ -19,7 +19,7 @@ func NewDocs(db *sql.DB) *Docs {
 func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
 	var id int
 	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated)" +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, doc_date, created, updated"
+		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id"
 	err := d.db.QueryRowContext(ctx, createStmt,
 		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
 		Scan(&id)
