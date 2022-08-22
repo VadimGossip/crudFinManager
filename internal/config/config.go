@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/viper"
 )
 
@@ -13,7 +14,7 @@ type PostgresConfig struct {
 	Host     string
 	Port     int
 	Username string
-	DBName   string
+	Name     string
 	SSLMode  string
 	Password string
 }
@@ -30,6 +31,7 @@ func parseConfigFile(configDir string) error {
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -37,7 +39,11 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("serverListener.tcp", &cfg.Server); err != nil {
 		return err
 	}
-	if err := viper.UnmarshalKey("postgres", &cfg.Postgres); err != nil {
+	return nil
+}
+
+func setFromEnv(cfg *Config) error {
+	if err := envconfig.Process("db", &cfg.Postgres); err != nil {
 		return err
 	}
 	return nil
@@ -53,5 +59,9 @@ func Init(configDir string) (*Config, error) {
 	if err := unmarshal(&cfg); err != nil {
 		return nil, err
 	}
+	if err := setFromEnv(&cfg); err != nil {
+		return nil, err
+	}
+
 	return &cfg, nil
 }
