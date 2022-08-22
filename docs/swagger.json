@@ -9,6 +9,146 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/docs": {
+            "get": {
+                "description": "get financial document",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Get financial document info by id",
+                "operationId": "get-doc",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "doc id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Doc"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update financial document info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Update financial document info",
+                "operationId": "update-doc",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "doc id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "document update info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateDocInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete financial document by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Delete financial doc by id",
+                "operationId": "delete-doc",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "doc id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/docs/create": {
             "post": {
                 "description": "create financial document",
@@ -38,31 +178,49 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/domain.CreateDocResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/domain.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/docs/list": {
+            "get": {
+                "description": "get all financial documents",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Get all financial documents",
+                "operationId": "get-list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.GetAllDocsResponse"
                         }
                     },
-                    "default": {
-                        "description": "",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/domain.ErrorResponse"
                         }
                     }
                 }
@@ -70,6 +228,15 @@
         }
     },
     "definitions": {
+        "domain.CreateDocResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "domain.Doc": {
             "type": "object",
             "required": [
@@ -77,39 +244,112 @@
                 "amount_usd",
                 "counterparty",
                 "doc_currency",
-                "notes",
                 "type"
             ],
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 1.23554
                 },
                 "amount_usd": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "example": 1.23554
                 },
                 "counterparty": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Some Company"
                 },
                 "created": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2022-08-22T19:12:02.239488Z"
                 },
                 "doc_currency": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "USD"
                 },
                 "doc_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2022-08-22T19:12:02.239488Z"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "notes": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "some notes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "invoice"
                 },
                 "updated": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2022-08-22T19:12:02.239488Z"
+                }
+            }
+        },
+        "domain.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "error message"
+                }
+            }
+        },
+        "domain.GetAllDocsResponse": {
+            "type": "object",
+            "properties": {
+                "docs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Doc"
+                    }
+                }
+            }
+        },
+        "domain.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "domain.UpdateDocInput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 1.23554
+                },
+                "amount_usd": {
+                    "type": "number",
+                    "example": 1.23554
+                },
+                "counterparty": {
+                    "type": "string",
+                    "example": "Some Company"
+                },
+                "doc_currency": {
+                    "type": "string",
+                    "example": "USD"
+                },
+                "doc_date": {
+                    "type": "string",
+                    "example": "2022-08-22T19:12:02.239488Z"
+                },
+                "notes": {
+                    "type": "string",
+                    "example": "some notes"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "invoice"
                 }
             }
         }
