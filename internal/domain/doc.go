@@ -6,26 +6,26 @@ import (
 )
 
 type Doc struct {
-	ID           int       `json:"id"`
-	Type         string    `json:"type" binding:"required"`
-	Counterparty string    `json:"counterparty" binding:"required"`
-	Amount       *float64  `json:"amount" binding:"required,min=0"`
-	DocCurrency  string    `json:"doc_currency" binding:"required"`
-	AmountUsd    *float64  `json:"amount_usd" binding:"required,min=0"`
-	DocDate      time.Time `json:"doc_date"`
-	Notes        string    `json:"notes"`
-	Created      time.Time `json:"created"`
-	Updated      time.Time `json:"updated"`
+	ID           int       `json:"id" example:"1"`
+	Type         string    `json:"type" binding:"required" example:"invoice"`
+	Counterparty string    `json:"counterparty" binding:"required" example:"Some Company"`
+	Amount       *float64  `json:"amount" binding:"required,min=0" example:"1.23554"`
+	DocCurrency  string    `json:"doc_currency" binding:"required" example:"USD"`
+	AmountUsd    *float64  `json:"amount_usd" binding:"required,min=0" example:"1.23554"`
+	DocDate      time.Time `json:"doc_date" example:"2022-08-22T19:12:02.239488Z"`
+	Notes        string    `json:"notes" example:"some notes"`
+	Created      time.Time `json:"created" example:"2022-08-22T19:12:02.239488Z"`
+	Updated      time.Time `json:"updated" example:"2022-08-22T19:12:02.239488Z"`
 }
 
 type UpdateDocInput struct {
-	Type         *string    `json:"type"`
-	Counterparty *string    `json:"counterparty"`
-	Amount       *float64   `json:"amount"`
-	DocCurrency  *string    `json:"doc_currency"`
-	AmountUsd    *float64   `json:"amount_usd"`
-	DocDate      *time.Time `json:"doc_date"`
-	Notes        *string    `json:"notes"`
+	Type         *string    `json:"type" example:"invoice"`
+	Counterparty *string    `json:"counterparty" example:"Some Company"`
+	Amount       *float64   `json:"amount" example:"1.23554"`
+	DocCurrency  *string    `json:"doc_currency" example:"USD"`
+	AmountUsd    *float64   `json:"amount_usd" example:"1.23554"`
+	DocDate      *time.Time `json:"doc_date" example:"2022-08-22T19:12:02.239488Z"`
+	Notes        *string    `json:"notes" example:"some notes"`
 }
 
 func (u UpdateDocInput) Validate() error {
@@ -41,13 +41,5 @@ type GetAllDocsResponse struct {
 }
 
 type CreateDocResponse struct {
-	ID int `json:"id"`
-}
-
-type UpdateDocResponse struct {
-	Status string `json:"status"`
-}
-
-type DeleteDocResponse struct {
-	Status string `json:"status"`
+	ID int `json:"id" example:"1"`
 }

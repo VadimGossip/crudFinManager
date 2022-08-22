@@ -1,34 +1,94 @@
 basePath: /
 definitions:
+  domain.CreateDocResponse:
+    properties:
+      id:
+        example: 1
+        type: integer
+    type: object
   domain.Doc:
     properties:
       amount:
+        example: 1.23554
+        minimum: 0
         type: number
       amount_usd:
+        example: 1.23554
+        minimum: 0
         type: number
       counterparty:
+        example: Some Company
         type: string
       created:
+        example: "2022-08-22T19:12:02.239488Z"
         type: string
       doc_currency:
+        example: USD
         type: string
       doc_date:
+        example: "2022-08-22T19:12:02.239488Z"
         type: string
       id:
+        example: 1
         type: integer
       notes:
+        example: some notes
         type: string
       type:
+        example: invoice
         type: string
       updated:
+        example: "2022-08-22T19:12:02.239488Z"
         type: string
     required:
     - amount
     - amount_usd
     - counterparty
     - doc_currency
-    - notes
     - type
+    type: object
+  domain.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  domain.GetAllDocsResponse:
+    properties:
+      docs:
+        items:
+          $ref: '#/definitions/domain.Doc'
+        type: array
+    type: object
+  domain.StatusResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+    type: object
+  domain.UpdateDocInput:
+    properties:
+      amount:
+        example: 1.23554
+        type: number
+      amount_usd:
+        example: 1.23554
+        type: number
+      counterparty:
+        example: Some Company
+        type: string
+      doc_currency:
+        example: USD
+        type: string
+      doc_date:
+        example: "2022-08-22T19:12:02.239488Z"
+        type: string
+      notes:
+        example: some notes
+        type: string
+      type:
+        example: invoice
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -37,6 +97,100 @@ info:
   title: Fin Manager App API
   version: "1.0"
 paths:
+  /docs:
+    delete:
+      consumes:
+      - application/json
+      description: delete financial document by id
+      operationId: delete-doc
+      parameters:
+      - description: doc id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete financial doc by id
+      tags:
+      - docs
+    get:
+      consumes:
+      - application/json
+      description: get financial document
+      operationId: get-doc
+      parameters:
+      - description: doc id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Doc'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get financial document info by id
+      tags:
+      - docs
+    put:
+      consumes:
+      - application/json
+      description: update financial document info
+      operationId: update-doc
+      parameters:
+      - description: doc id
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: document update info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateDocInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update financial document info
+      tags:
+      - docs
   /docs/create:
     post:
       consumes:
@@ -56,24 +210,36 @@ paths:
         "201":
           description: Created
           schema:
-            type: integer
+            $ref: '#/definitions/domain.CreateDocResponse'
         "400":
           description: Bad Request
           schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            type: string
-        default:
-          description: ""
-          schema:
-            type: string
+            $ref: '#/definitions/domain.ErrorResponse'
       summary: Create Financial document
+      tags:
+      - docs
+  /docs/list:
+    get:
+      consumes:
+      - application/json
+      description: get all financial documents
+      operationId: get-list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.GetAllDocsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all financial documents
       tags:
       - docs
 swagger: "2.0"
