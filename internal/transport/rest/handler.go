@@ -2,9 +2,9 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 
@@ -60,12 +60,20 @@ func (h *Handler) InitRoutes() *gin.Engine {
 func (h *Handler) createDoc(c *gin.Context) {
 	var doc domain.Doc
 	if err := c.ShouldBind(&doc); err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		logrus.WithFields(logrus.Fields{
+			"handler": "createDoc",
+			"problem": "unmarshal request error",
+		}).Error(err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid doc param"})
 		return
 	}
 	id, err := h.docsService.Create(context.TODO(), doc)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: fmt.Sprintf("Can't create doc. Error: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "createDoc",
+			"problem": "service err",
+		}).Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "can't create doc"})
 		return
 	}
 
@@ -86,13 +94,21 @@ func (h *Handler) createDoc(c *gin.Context) {
 func (h *Handler) getDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: fmt.Sprintf("Invalid id param: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "getDocByID",
+			"problem": "unmarshal request error",
+		}).Error(err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	doc, err := h.docsService.GetDocByID(context.TODO(), id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: fmt.Sprintf("Searching for doc. Error: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "getDocByID",
+			"problem": "service err",
+		}).Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "doc search"})
 		return
 	}
 
@@ -111,7 +127,11 @@ func (h *Handler) getDocByID(c *gin.Context) {
 func (h *Handler) getAllDocs(c *gin.Context) {
 	docs, err := h.docsService.GetAllDocs(context.TODO())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Searching for doc list. Error: %s", err.Error()))
+		logrus.WithFields(logrus.Fields{
+			"handler": "getAllDocs",
+			"problem": "service err",
+		}).Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "doc search list"})
 		return
 	}
 
@@ -132,12 +152,20 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 func (h *Handler) deleteDoc(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: fmt.Sprintf("Invalid id param: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "deleteDoc",
+			"problem": "unmarshal request error",
+		}).Error(err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	if err := h.docsService.Delete(context.TODO(), id); err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: fmt.Sprintf("Deleting doc. Error: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "deleteDoc",
+			"problem": "service err",
+		}).Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "delete doc"})
 		return
 	}
 
@@ -159,18 +187,30 @@ func (h *Handler) deleteDoc(c *gin.Context) {
 func (h *Handler) updateDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: fmt.Sprintf("Invalid id param: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "updateDocByID",
+			"problem": "unmarshal request error",
+		}).Error(err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	var input domain.UpdateDocInput
 	if err := c.BindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		logrus.WithFields(logrus.Fields{
+			"handler": "updateDocByID",
+			"problem": "unmarshal request error",
+		}).Error(err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid update doc input param"})
 		return
 	}
 
 	if err := h.docsService.Update(context.TODO(), id, input); err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: fmt.Sprintf("Updating doc. Error: %s", err.Error())})
+		logrus.WithFields(logrus.Fields{
+			"handler": "updateDocByID",
+			"problem": "service err",
+		}).Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "update doc"})
 		return
 	}
 

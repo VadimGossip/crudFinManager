@@ -24,6 +24,12 @@ import (
 // @host localhost:8080
 // @BasePath /
 
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.InfoLevel)
+}
+
 func Run(configDir string) {
 	cfg, err := config.Init(configDir)
 	if err != nil {
@@ -45,13 +51,13 @@ func Run(configDir string) {
 		}
 	}()
 
-	logrus.Print("Http Server for fin manager service started")
+	logrus.Info("Http Server for fin manager service started")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	logrus.Print("Http Server for fin manager service stopped")
+	logrus.Info("Http Server for fin manager service stopped")
 
 	if err := db.Close(); err != nil {
 		logrus.Errorf("Error occured on postgres connection close: %s", err.Error())
