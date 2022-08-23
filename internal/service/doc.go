@@ -44,17 +44,17 @@ func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
 	return doc.ID, nil
 }
 
-func (d *Docs) GetDocByID(ctx context.Context, id int) (interface{}, error) {
+func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 	doc, err := d.cache.Get(strconv.Itoa(id))
 	if err != nil {
 		doc, err = d.repo.GetDocByID(ctx, id)
 		if err != nil {
-			return nil, err
+			return doc.(domain.Doc), err
 		}
 		d.cache.Set(strconv.Itoa(id), doc, time.Second*10)
-		return doc, nil
+		return doc.(domain.Doc), nil
 	}
-	return doc, nil
+	return doc.(domain.Doc), nil
 }
 
 func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {

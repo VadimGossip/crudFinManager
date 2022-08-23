@@ -15,7 +15,7 @@ import (
 
 type Docs interface {
 	Create(ctx context.Context, doc domain.Doc) (int, error)
-	GetDocByID(ctx context.Context, id int) (interface{}, error)
+	GetDocByID(ctx context.Context, id int) (domain.Doc, error)
 	GetAllDocs(ctx context.Context) ([]domain.Doc, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, inp domain.UpdateDocInput) error

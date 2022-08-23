@@ -22,9 +22,6 @@ func (d *Docs) Create(ctx context.Context, doc domain.Doc) (domain.Doc, error) {
 	err := d.db.QueryRowContext(ctx, createStmt,
 		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
 		Scan(&doc.ID, &doc.Created)
-	if err != nil {
-		return doc, err
-	}
 	return doc, err
 }
 
