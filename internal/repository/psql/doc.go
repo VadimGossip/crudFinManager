@@ -16,17 +16,16 @@ func NewDocs(db *sql.DB) *Docs {
 	return &Docs{db: db}
 }
 
-func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
-	var id int
+func (d *Docs) Create(ctx context.Context, doc domain.Doc) (domain.Doc, error) {
 	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated)" +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id"
+		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, created"
 	err := d.db.QueryRowContext(ctx, createStmt,
 		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
-		Scan(&id)
+		Scan(&doc.ID, &doc.Created)
 	if err != nil {
-		return 0, err
+		return doc, err
 	}
-	return id, err
+	return doc, err
 }
 
 func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
@@ -69,7 +68,8 @@ func (d *Docs) Delete(ctx context.Context, id int) error {
 	return err
 }
 
-func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) error {
+func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) (domain.Doc, error) {
+	var doc domain.Doc
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -116,11 +116,15 @@ func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) er
 		argId++
 	}
 	setQuery := strings.Join(setValues, ", ")
-	updStmt := "update docs set %s where id=$%d"
+	updStmt := "update docs set %s where id=$%d returning" +
+		" id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated"
 
 	query := fmt.Sprintf(updStmt, setQuery, argId)
 	args = append(args, id)
 
-	_, err := d.db.ExecContext(ctx, query, args...)
-	return err
+	err := d.db.QueryRowContext(ctx, query, args...).
+		Scan(&doc.ID, &doc.Type, &doc.Counterparty, &doc.Amount, &doc.DocCurrency,
+			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.Created, &doc.Updated)
+
+	return doc, err
 }

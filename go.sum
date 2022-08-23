@@ -42,6 +42,10 @@ github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
+github.com/VadimGossip/simpleCache v1.0.6 h1:/hsjja+c1IB6pLSpSoJMFn+R/wUUL8wzjbsrYtylru4=
+github.com/VadimGossip/simpleCache v1.0.6/go.mod h1:frrUbP3jVM2p/pT3llijmZr1wPMKH0RZso3T938KTR8=
+github.com/VadimGossip/simpleCache v1.0.7 h1:H/NINoU8GLr3No3fSGKuvGoaXj/a+IZ/pMoWYKbkFw4=
+github.com/VadimGossip/simpleCache v1.0.7/go.mod h1:frrUbP3jVM2p/pT3llijmZr1wPMKH0RZso3T938KTR8=
 github.com/agiledragon/gomonkey/v2 v2.3.1/go.mod h1:ap1AmDzcVOAz1YpeJ3TCzIgstoaWLA6jbbgxfB4w2iY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

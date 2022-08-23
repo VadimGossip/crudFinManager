@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/VadimGossip/simpleCache"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,7 +42,8 @@ func Run(configDir string) {
 	}
 
 	repo := psql.NewDocs(db)
-	docsService := service.NewBooks(repo)
+	cache := simpleCache.NewCache()
+	docsService := service.NewBooks(repo, cache)
 	handler := rest.NewHandler(docsService)
 	server := http.NewServer()
 
