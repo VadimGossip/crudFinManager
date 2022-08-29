@@ -7,6 +7,6 @@ create table docs (
  amount_usd   float8       not null,
  doc_date     timestamp not null default now(),
  notes        varchar(4000) not null,
- created      timestamp not null default now(),
- updated      timestamp not null default now()
+ created_at   timestamp not null default now(),
+ updated_at   timestamp not null default now()
 );

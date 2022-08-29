@@ -30,10 +30,10 @@ func NewBooks(repo DocsRepository, cache simpleCache.Cashier) *Docs {
 }
 
 func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
-	doc.Created = time.Now()
-	doc.Updated = doc.Created
+	doc.CreatedAt = time.Now()
+	doc.UpdatedAt = doc.CreatedAt
 	if doc.DocDate.IsZero() {
-		doc.DocDate = doc.Created
+		doc.DocDate = doc.CreatedAt
 	}
 	doc, err := d.repo.Create(ctx, doc)
 	if err != nil {
@@ -70,7 +70,7 @@ func (d *Docs) Delete(ctx context.Context, id int) error {
 }
 
 func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) error {
-	if err := inp.Validate(); err != nil {
+	if err := inp.IsValid(); err != nil {
 		return err
 	}
 	doc, err := d.repo.Update(ctx, id, inp)

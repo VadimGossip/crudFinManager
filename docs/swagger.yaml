@@ -19,7 +19,7 @@ definitions:
       counterparty:
         example: Some Company
         type: string
-      created:
+      created_at:
         example: "2022-08-22T19:12:02.239488Z"
         type: string
       doc_currency:
@@ -37,7 +37,7 @@ definitions:
       type:
         example: invoice
         type: string
-      updated:
+      updated_at:
         example: "2022-08-22T19:12:02.239488Z"
         type: string
     required:
@@ -98,100 +98,25 @@ info:
   version: "1.0"
 paths:
   /docs:
-    delete:
-      consumes:
-      - application/json
-      description: delete financial document by id
-      operationId: delete-doc
-      parameters:
-      - description: doc id
-        in: query
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.StatusResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: Delete financial doc by id
-      tags:
-      - docs
     get:
       consumes:
       - application/json
-      description: get financial document
-      operationId: get-doc
-      parameters:
-      - description: doc id
-        in: query
-        name: id
-        required: true
-        type: integer
+      description: get all financial documents
+      operationId: get-list
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Doc'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
+            $ref: '#/definitions/domain.GetAllDocsResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
-      summary: Get financial document info by id
+      summary: Get all financial documents
       tags:
       - docs
-    put:
-      consumes:
-      - application/json
-      description: update financial document info
-      operationId: update-doc
-      parameters:
-      - description: doc id
-        in: query
-        name: id
-        required: true
-        type: integer
-      - description: document update info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.UpdateDocInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/domain.StatusResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: Update financial document info
-      tags:
-      - docs
-  /docs/create:
     post:
       consumes:
       - application/json
@@ -222,24 +147,98 @@ paths:
       summary: Create Financial document
       tags:
       - docs
-  /docs/list:
-    get:
+  /docs/{id}:
+    delete:
       consumes:
       - application/json
-      description: get all financial documents
-      operationId: get-list
+      description: delete financial document by id
+      operationId: delete-doc-by-id
+      parameters:
+      - description: Doc ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.GetAllDocsResponse'
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
-      summary: Get all financial documents
+      summary: Delete financial doc by id
+      tags:
+      - docs
+    get:
+      consumes:
+      - application/json
+      description: get financial document
+      operationId: get-doc-by-id
+      parameters:
+      - description: Doc ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Doc'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get financial document info by id
+      tags:
+      - docs
+    put:
+      consumes:
+      - application/json
+      description: update financial document info
+      operationId: update-doc-by-id
+      parameters:
+      - description: Doc ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: document update info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateDocInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update financial document info
       tags:
       - docs
 swagger: "2.0"

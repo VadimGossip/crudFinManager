@@ -18,7 +18,7 @@ const docTemplate = `{
     "paths": {
         "/docs": {
             "get": {
-                "description": "get financial document",
+                "description": "get all financial documents",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,28 +28,13 @@ const docTemplate = `{
                 "tags": [
                     "docs"
                 ],
-                "summary": "Get financial document info by id",
-                "operationId": "get-doc",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "doc id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
+                "summary": "Get all financial documents",
+                "operationId": "get-list",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Doc"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
+                            "$ref": "#/definitions/domain.GetAllDocsResponse"
                         }
                     },
                     "500": {
@@ -60,103 +45,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "description": "update financial document info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "docs"
-                ],
-                "summary": "Update financial document info",
-                "operationId": "update-doc",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "doc id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "description": "document update info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.UpdateDocInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.StatusResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete financial document by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "docs"
-                ],
-                "summary": "Delete financial doc by id",
-                "operationId": "delete-doc",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "doc id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.StatusResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/docs/create": {
             "post": {
                 "description": "create financial document",
                 "consumes": [
@@ -203,9 +91,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/docs/list": {
+        "/docs/{id}": {
             "get": {
-                "description": "get all financial documents",
+                "description": "get financial document",
                 "consumes": [
                     "application/json"
                 ],
@@ -215,13 +103,123 @@ const docTemplate = `{
                 "tags": [
                     "docs"
                 ],
-                "summary": "Get all financial documents",
-                "operationId": "get-list",
+                "summary": "Get financial document info by id",
+                "operationId": "get-doc-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Doc ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.GetAllDocsResponse"
+                            "$ref": "#/definitions/domain.Doc"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update financial document info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Update financial document info",
+                "operationId": "update-doc-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Doc ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "document update info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateDocInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete financial document by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "docs"
+                ],
+                "summary": "Delete financial doc by id",
+                "operationId": "delete-doc-by-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Doc ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.StatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
                         }
                     },
                     "500": {
@@ -268,7 +266,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Some Company"
                 },
-                "created": {
+                "created_at": {
                     "type": "string",
                     "example": "2022-08-22T19:12:02.239488Z"
                 },
@@ -292,7 +290,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "invoice"
                 },
-                "updated": {
+                "updated_at": {
                     "type": "string",
                     "example": "2022-08-22T19:12:02.239488Z"
                 }

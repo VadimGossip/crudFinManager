@@ -37,11 +37,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	docsApi := router.Group("/docs")
 	{
-		docsApi.POST("/create", h.createDoc)
-		docsApi.GET("", h.getDocByID)
-		docsApi.GET("/list", h.getAllDocs)
-		docsApi.DELETE("", h.deleteDoc)
-		docsApi.PUT("", h.updateDocByID)
+		docsApi.POST("", h.createDoc)
+		docsApi.GET("/:id", h.getDocByID)
+		docsApi.GET("", h.getAllDocs)
+		docsApi.DELETE("/:id", h.deleteDocById)
+		docsApi.PUT("/:id", h.updateDocByID)
 	}
 	return router
 }
@@ -50,13 +50,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 // @Tags docs
 // @Description create financial document
 // @ID create-doc
-// @Accept json
+// @Accept  json
 // @Produce json
-// @Param input body domain.Doc true "document info"
-// @Success 201 {object} domain.CreateDocResponse
-// @Failure 400 {object} domain.ErrorResponse
-// @Failure 500 {object} domain.ErrorResponse
-// @Router /docs/create [post]
+// @Param   input body     domain.Doc               true "document info"
+// @Success 201   {object} domain.CreateDocResponse
+// @Failure 400   {object} domain.ErrorResponse
+// @Failure 500   {object} domain.ErrorResponse
+// @Router /docs [post]
 func (h *Handler) createDoc(c *gin.Context) {
 	var doc domain.Doc
 	if err := c.ShouldBind(&doc); err != nil {
@@ -83,16 +83,17 @@ func (h *Handler) createDoc(c *gin.Context) {
 // @Summary Get financial document info by id
 // @Tags docs
 // @Description get financial document
-// @ID get-doc
-// @Accept json
+// @ID get-doc-by-id
+// @Accept  json
 // @Produce json
-// @Param id query int true "doc id"
+// @Param   id   path    int                  true  "Doc ID"
 // @Success 200 {object} domain.Doc
 // @Failure 400 {object} domain.ErrorResponse
 // @Failure 500 {object} domain.ErrorResponse
-// @Router /docs [get]
+// @Router /docs/{id} [get]
 func (h *Handler) getDocByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"handler": "getDocByID",
@@ -123,7 +124,7 @@ func (h *Handler) getDocByID(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} domain.GetAllDocsResponse
 // @Failure 500 {object} domain.ErrorResponse
-// @Router /docs/list [get]
+// @Router /docs [get]
 func (h *Handler) getAllDocs(c *gin.Context) {
 	docs, err := h.docsService.GetAllDocs(context.TODO())
 	if err != nil {
@@ -141,16 +142,16 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 // @Summary Delete financial doc by id
 // @Tags docs
 // @Description delete financial document by id
-// @ID delete-doc
-// @Accept json
+// @ID delete-doc-by-id
+// @Accept  json
 // @Produce json
-// @Param id query int true "doc id"
+// @Param   id   path    int                   true  "Doc ID"
 // @Success 200 {object} domain.StatusResponse
 // @Failure 400 {object} domain.ErrorResponse
 // @Failure 500 {object} domain.ErrorResponse
-// @Router /docs [delete]
-func (h *Handler) deleteDoc(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
+// @Router /docs/{id} [delete]
+func (h *Handler) deleteDocById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"handler": "deleteDoc",
@@ -175,17 +176,17 @@ func (h *Handler) deleteDoc(c *gin.Context) {
 // @Summary Update financial document info
 // @Tags docs
 // @Description update financial document info
-// @ID update-doc
-// @Accept json
+// @ID update-doc-by-id
+// @Accept  json
 // @Produce json
-// @Param id query int true "doc id"
-// @Param input body domain.UpdateDocInput true "document update info"
-// @Success 200 {object} domain.StatusResponse
-// @Failure 400 {object} domain.ErrorResponse
-// @Failure 500 {object} domain.ErrorResponse
-// @Router /docs [put]
+// @Param   id    path     int                   true  "Doc ID"
+// @Param   input body     domain.UpdateDocInput true "document update info"
+// @Success 200   {object} domain.StatusResponse
+// @Failure 400   {object} domain.ErrorResponse
+// @Failure 500   {object} domain.ErrorResponse
+// @Router /docs/{id} [put]
 func (h *Handler) updateDocByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"handler": "updateDocByID",
