@@ -78,7 +78,7 @@ func (s *Users) SignIn(ctx context.Context, inp domain.SignInInput) (string, err
 	return token.SignedString(s.hmacSecret)
 }
 
-func (s *Users) ParseToken(token string) (int64, error) {
+func (s *Users) ParseToken(token string) (int, error) {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -109,5 +109,5 @@ func (s *Users) ParseToken(token string) (int64, error) {
 		return 0, errors.New("invalid subject")
 	}
 
-	return int64(id), nil
+	return id, nil
 }

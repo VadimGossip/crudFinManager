@@ -10,11 +10,11 @@ import (
 )
 
 type DocsRepository interface {
-	Create(ctx context.Context, doc domain.Doc) (domain.Doc, error)
+	Create(ctx context.Context, doc *domain.Doc) error
 	GetDocByID(ctx context.Context, id int) (domain.Doc, error)
 	GetAllDocs(ctx context.Context) ([]domain.Doc, error)
 	Delete(ctx context.Context, id int) error
-	Update(ctx context.Context, id int, inp domain.UpdateDocInput) (domain.Doc, error)
+	Update(ctx context.Context, userId, id int, inp domain.UpdateDocInput) (domain.Doc, error)
 }
 
 type Docs struct {
@@ -29,13 +29,16 @@ func NewBooks(repo DocsRepository, cache simpleCache.Cashier) *Docs {
 	}
 }
 
-func (d *Docs) Create(ctx context.Context, doc domain.Doc) (int, error) {
+func (d *Docs) Create(ctx context.Context, userId int, doc domain.Doc) (int, error) {
 	doc.CreatedAt = time.Now()
 	doc.UpdatedAt = doc.CreatedAt
 	if doc.DocDate.IsZero() {
 		doc.DocDate = doc.CreatedAt
 	}
-	doc, err := d.repo.Create(ctx, doc)
+	doc.AuthorID = userId
+	doc.UpdaterID = doc.AuthorID
+
+	err := d.repo.Create(ctx, &doc)
 	if err != nil {
 		return 0, err
 	}
@@ -69,11 +72,12 @@ func (d *Docs) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) error {
+func (d *Docs) Update(ctx context.Context, userId, id int, inp domain.UpdateDocInput) error {
 	if err := inp.IsValid(); err != nil {
 		return err
 	}
-	doc, err := d.repo.Update(ctx, id, inp)
+
+	doc, err := d.repo.Update(ctx, userId, id, inp)
 	if err != nil {
 		return err
 	}

@@ -2,24 +2,27 @@ package rest
 
 import (
 	"context"
-	_ "github.com/VadimGossip/crudFinManager/docs"
+
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+
+	_ "github.com/VadimGossip/crudFinManager/docs"
 )
 
 type Docs interface {
-	Create(ctx context.Context, doc domain.Doc) (int, error)
+	Create(ctx context.Context, userId int, doc domain.Doc) (int, error)
 	GetDocByID(ctx context.Context, id int) (domain.Doc, error)
 	GetAllDocs(ctx context.Context) ([]domain.Doc, error)
 	Delete(ctx context.Context, id int) error
-	Update(ctx context.Context, id int, inp domain.UpdateDocInput) error
+	Update(ctx context.Context, userId, id int, inp domain.UpdateDocInput) error
 }
 
 type Users interface {
 	SignUp(ctx context.Context, inp domain.SignUpInput) error
 	SignIn(ctx context.Context, inp domain.SignInInput) (string, error)
+	ParseToken(token string) (int, error)
 }
 
 type Handler struct {
@@ -44,7 +47,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		usersApi.GET("/sign-in", h.signIn)
 	}
 
-	docsApi := router.Group("/docs")
+	docsApi := router.Group("/docs", h.userIdentity)
 	{
 		docsApi.POST("", h.createDoc)
 		docsApi.GET("/:id", h.getDocByID)

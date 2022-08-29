@@ -14,7 +14,9 @@ type Doc struct {
 	AmountUsd    *float64  `json:"amount_usd" binding:"required,min=0" example:"1.23554"`
 	DocDate      time.Time `json:"doc_date" example:"2022-08-22T19:12:02.239488Z"`
 	Notes        string    `json:"notes" example:"some notes"`
+	AuthorID     int       `json:"author_id" example:"142"`
 	CreatedAt    time.Time `json:"created_at" example:"2022-08-22T19:12:02.239488Z"`
+	UpdaterID    int       `json:"updater_id" example:"253"`
 	UpdatedAt    time.Time `json:"updated_at" example:"2022-08-22T19:12:02.239488Z"`
 }
 

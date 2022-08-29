@@ -1,10 +1,12 @@
 package rest
 
 import (
-	"github.com/VadimGossip/crudFinManager/internal/domain"
-	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	"github.com/VadimGossip/crudFinManager/internal/domain"
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary Create Financial document
@@ -19,15 +21,24 @@ import (
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs [post]
 func (h *Handler) createDoc(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		logError("createDoc", err)
+		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "can't get user id"})
+		return
+	}
+
 	var doc domain.Doc
 	if err := c.ShouldBind(&doc); err != nil {
-		logError("createDoc", "unmarshal request error", err)
+		logError("createDoc", err)
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid doc param"})
 		return
 	}
-	id, err := h.docsService.Create(c.Request.Context(), doc)
+	logrus.Infof("userId %d", userId)
+
+	id, err := h.docsService.Create(c.Request.Context(), userId, doc)
 	if err != nil {
-		logError("createDoc", "service error", err)
+		logError("createDoc", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "can't create doc"})
 		return
 	}
@@ -49,14 +60,14 @@ func (h *Handler) createDoc(c *gin.Context) {
 func (h *Handler) getDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		logError("getDocByID", "request param error", err)
+		logError("getDocByID", err)
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	doc, err := h.docsService.GetDocByID(c.Request.Context(), id)
 	if err != nil {
-		logError("getDocByID", "service error", err)
+		logError("getDocByID", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "doc search"})
 		return
 	}
@@ -76,7 +87,7 @@ func (h *Handler) getDocByID(c *gin.Context) {
 func (h *Handler) getAllDocs(c *gin.Context) {
 	docs, err := h.docsService.GetAllDocs(c.Request.Context())
 	if err != nil {
-		logError("getAllDocs", "service error", err)
+		logError("getAllDocs", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "doc search list"})
 		return
 	}
@@ -98,13 +109,13 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 func (h *Handler) deleteDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		logError("deleteDocByID", "request param error", err)
+		logError("deleteDocByID", err)
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	if err := h.docsService.Delete(c.Request.Context(), id); err != nil {
-		logError("deleteDocByID", "service error", err)
+		logError("deleteDocByID", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "delete doc"})
 		return
 	}
@@ -125,22 +136,29 @@ func (h *Handler) deleteDocByID(c *gin.Context) {
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [put]
 func (h *Handler) updateDocByID(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		logError("updateDocByID", err)
+		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "can't get user id"})
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		logError("updateDocByID", "request param error", err)
+		logError("updateDocByID", err)
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid id param"})
 		return
 	}
 
 	var input domain.UpdateDocInput
 	if err := c.BindJSON(&input); err != nil {
-		logError("updateDocByID", "unmarshal request error", err)
+		logError("updateDocByID", err)
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "invalid update doc input param"})
 		return
 	}
 
-	if err := h.docsService.Update(c.Request.Context(), id, input); err != nil {
-		logError("updateDocByID", "service error", err)
+	if err := h.docsService.Update(c.Request.Context(), userId, id, input); err != nil {
+		logError("updateDocByID", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "update doc"})
 		return
 	}
