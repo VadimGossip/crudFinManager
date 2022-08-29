@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"strings"
+
+	"github.com/VadimGossip/crudFinManager/internal/domain"
 )
 
 type Docs struct {
