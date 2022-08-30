@@ -1,8 +1,10 @@
 package config
 
 import (
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/viper"
+	"log"
 )
 
 type NetServerConfig struct {
@@ -49,7 +51,15 @@ func setFromEnv(cfg *Config) error {
 	return nil
 }
 
+func readFromEnv() {
+	err := godotenv.Load("F:\\Workspace\\Go\\Clean\\crudFinManager\\.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
 func Init(configDir string) (*Config, error) {
+	readFromEnv()
 	viper.SetConfigName("config")
 	if err := parseConfigFile(configDir); err != nil {
 		return nil, err
@@ -64,4 +74,11 @@ func Init(configDir string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }

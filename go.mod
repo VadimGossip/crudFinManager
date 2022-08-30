@@ -3,7 +3,10 @@ module github.com/VadimGossip/crudFinManager
 go 1.19
 
 require (
+	github.com/VadimGossip/simpleCache v1.0.7
 	github.com/gin-gonic/gin v1.8.1
+	github.com/joho/godotenv v1.4.0
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.6
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
@@ -14,7 +17,6 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/VadimGossip/simpleCache v1.0.7 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -28,7 +30,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

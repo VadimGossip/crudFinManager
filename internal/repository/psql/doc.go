@@ -17,21 +17,21 @@ func NewDocs(db *sql.DB) *Docs {
 }
 
 func (d *Docs) Create(ctx context.Context, doc domain.Doc) (domain.Doc, error) {
-	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated)" +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, created"
+	createStmt := "insert into docs(type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created_at, updated_at)" +
+		"values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id, created_at"
 	err := d.db.QueryRowContext(ctx, createStmt,
-		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.Created, doc.Updated).
-		Scan(&doc.ID, &doc.Created)
+		doc.Type, doc.Counterparty, doc.Amount, doc.DocCurrency, doc.AmountUsd, doc.DocDate, doc.Notes, doc.CreatedAt, doc.UpdatedAt).
+		Scan(&doc.ID, &doc.CreatedAt)
 	return doc, err
 }
 
 func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 	var doc domain.Doc
-	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated" +
+	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created_at, updated_at" +
 		" from docs where id=$1"
 	err := d.db.QueryRowContext(ctx, selectStmt, id).
 		Scan(&doc.ID, &doc.Type, &doc.Counterparty, &doc.Amount, &doc.DocCurrency,
-			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.Created, &doc.Updated)
+			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.CreatedAt, &doc.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return doc, fmt.Errorf("document with id = %d not found", id)
 	}
@@ -39,7 +39,7 @@ func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 }
 
 func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {
-	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated" +
+	selectStmt := "select id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created_at, updated_at" +
 		" from docs"
 	rows, err := d.db.QueryContext(ctx, selectStmt)
 	if err != nil {
@@ -50,7 +50,7 @@ func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {
 	for rows.Next() {
 		var doc domain.Doc
 		err := rows.Scan(&doc.ID, &doc.Type, &doc.Counterparty, &doc.Amount, &doc.DocCurrency,
-			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.Created, &doc.Updated)
+			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.CreatedAt, &doc.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -114,14 +114,14 @@ func (d *Docs) Update(ctx context.Context, id int, inp domain.UpdateDocInput) (d
 	}
 	setQuery := strings.Join(setValues, ", ")
 	updStmt := "update docs set %s where id=$%d returning" +
-		" id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created, updated"
+		" id, type, counterparty, amount, doc_currency, amount_usd, doc_date, notes, created_at, updated_at"
 
 	query := fmt.Sprintf(updStmt, setQuery, argId)
 	args = append(args, id)
 
 	err := d.db.QueryRowContext(ctx, query, args...).
 		Scan(&doc.ID, &doc.Type, &doc.Counterparty, &doc.Amount, &doc.DocCurrency,
-			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.Created, &doc.Updated)
+			&doc.AmountUsd, &doc.DocDate, &doc.Notes, &doc.CreatedAt, &doc.UpdatedAt)
 
 	return doc, err
 }
