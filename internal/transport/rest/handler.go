@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"time"
 
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ type Users interface {
 	SignIn(ctx context.Context, inp domain.SignInInput) (string, string, error)
 	ParseToken(token string) (int, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (string, string, error)
+	GetRefreshTokenTTL() time.Duration
 }
 
 type Handler struct {
@@ -45,7 +47,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	usersApi := router.Group("/auth")
 	{
 		usersApi.POST("/sign-up", h.signUp)
-		usersApi.GET("/sign-in", h.signIn)
+		usersApi.POST("/sign-in", h.signIn)
 		usersApi.GET("/refresh", h.refresh)
 	}
 

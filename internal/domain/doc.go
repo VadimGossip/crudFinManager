@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -30,12 +29,9 @@ type UpdateDocInput struct {
 	Notes        *string    `json:"notes" example:"some notes"`
 }
 
-func (u UpdateDocInput) IsValid() error {
-	if u.Type == nil && u.Counterparty == nil && u.Amount == nil && u.DocCurrency == nil && u.AmountUsd == nil &&
-		u.Notes == nil && u.DocDate == nil {
-		return fmt.Errorf("update structure has no values")
-	}
-	return nil
+func (u UpdateDocInput) IsValid() bool {
+	return u.Type != nil || u.Counterparty != nil || u.Amount != nil || u.DocCurrency != nil || u.AmountUsd != nil ||
+		u.Notes != nil || u.DocDate != nil
 }
 
 type GetAllDocsResponse struct {

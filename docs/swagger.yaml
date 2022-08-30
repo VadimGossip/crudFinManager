@@ -16,6 +16,9 @@ definitions:
         example: 1.23554
         minimum: 0
         type: number
+      author_id:
+        example: 142
+        type: integer
       counterparty:
         example: Some Company
         type: string
@@ -40,6 +43,9 @@ definitions:
       updated_at:
         example: "2022-08-22T19:12:02.239488Z"
         type: string
+      updater_id:
+        example: 253
+        type: integer
     required:
     - amount
     - amount_usd
@@ -60,10 +66,45 @@ definitions:
           $ref: '#/definitions/domain.Doc'
         type: array
     type: object
+  domain.SignInInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.SignUpInput:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      surname:
+        minLength: 2
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - surname
+    type: object
   domain.StatusResponse:
     properties:
       status:
         example: ok
+        type: string
+    type: object
+  domain.TokenResponse:
+    properties:
+      accessToken:
         type: string
     type: object
   domain.UpdateDocInput:
@@ -97,6 +138,89 @@ info:
   title: Fin Manager App API
   version: "1.0"
 paths:
+  /auth/refresh:
+    get:
+      description: Refresh tokens
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Refresh
+      tags:
+      - auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: login
+      operationId: login
+      parameters:
+      - description: account credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.StatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: SignUp
+      tags:
+      - auth
   /docs:
     get:
       consumes:
@@ -110,10 +234,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.GetAllDocsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - JWT: []
       summary: Get all financial documents
       tags:
       - docs
@@ -140,10 +270,16 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - JWT: []
       summary: Create Financial document
       tags:
       - docs
@@ -170,10 +306,16 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - JWT: []
       summary: Delete financial doc by id
       tags:
       - docs
@@ -199,10 +341,16 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - JWT: []
       summary: Get financial document info by id
       tags:
       - docs
@@ -234,11 +382,22 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - JWT: []
       summary: Update financial document info
       tags:
       - docs
+securityDefinitions:
+  JWT:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

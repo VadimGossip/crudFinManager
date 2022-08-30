@@ -10,6 +10,7 @@ import (
 )
 
 // @Summary Create Financial document
+// @Security JWT
 // @Tags docs
 // @Description create financial document
 // @ID create-doc
@@ -18,6 +19,7 @@ import (
 // @Param   input body     domain.Doc               true "document info"
 // @Success 201   {object} domain.CreateDocResponse
 // @Failure 400   {object} domain.ErrorResponse
+// @Failure 401   {object} domain.ErrorResponse
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs [post]
 func (h *Handler) createDoc(c *gin.Context) {
@@ -47,6 +49,7 @@ func (h *Handler) createDoc(c *gin.Context) {
 }
 
 // @Summary Get financial document info by id
+// @Security JWT
 // @Tags docs
 // @Description get financial document
 // @ID get-doc-by-id
@@ -54,8 +57,9 @@ func (h *Handler) createDoc(c *gin.Context) {
 // @Produce json
 // @Param   id   path    int                  true  "Doc ID"
 // @Success 200 {object} domain.Doc
-// @Failure 400 {object} domain.ErrorResponse
-// @Failure 500 {object} domain.ErrorResponse
+// @Failure 400   {object} domain.ErrorResponse
+// @Failure 401   {object} domain.ErrorResponse
+// @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [get]
 func (h *Handler) getDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -76,13 +80,15 @@ func (h *Handler) getDocByID(c *gin.Context) {
 }
 
 // @Summary Get all financial documents
+// @Security JWT
 // @Tags docs
 // @Description get all financial documents
 // @ID get-list
 // @Accept json
 // @Produce json
 // @Success 200 {object} domain.GetAllDocsResponse
-// @Failure 500 {object} domain.ErrorResponse
+// @Failure 401   {object} domain.ErrorResponse
+// @Failure 500   {object} domain.ErrorResponse
 // @Router /docs [get]
 func (h *Handler) getAllDocs(c *gin.Context) {
 	docs, err := h.docsService.GetAllDocs(c.Request.Context())
@@ -96,6 +102,7 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 }
 
 // @Summary Delete financial doc by id
+// @Security JWT
 // @Tags docs
 // @Description delete financial document by id
 // @ID delete-doc-by-id
@@ -103,8 +110,9 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 // @Produce json
 // @Param   id   path    int                   true  "Doc ID"
 // @Success 200 {object} domain.StatusResponse
-// @Failure 400 {object} domain.ErrorResponse
-// @Failure 500 {object} domain.ErrorResponse
+// @Failure 400   {object} domain.ErrorResponse
+// @Failure 401   {object} domain.ErrorResponse
+// @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [delete]
 func (h *Handler) deleteDocByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -124,6 +132,7 @@ func (h *Handler) deleteDocByID(c *gin.Context) {
 }
 
 // @Summary Update financial document info
+// @Security JWT
 // @Tags docs
 // @Description update financial document info
 // @ID update-doc-by-id
@@ -133,6 +142,7 @@ func (h *Handler) deleteDocByID(c *gin.Context) {
 // @Param   input body     domain.UpdateDocInput true "document update info"
 // @Success 200   {object} domain.StatusResponse
 // @Failure 400   {object} domain.ErrorResponse
+// @Failure 401   {object} domain.ErrorResponse
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [put]
 func (h *Handler) updateDocByID(c *gin.Context) {

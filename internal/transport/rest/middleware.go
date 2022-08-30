@@ -33,23 +33,6 @@ func (h *Handler) getTokenFromRequest(c *gin.Context) (string, error) {
 	return headerParts[1], nil
 }
 
-//func (h *Handler) userIdentity(c *gin.Context) {
-//	token, err := h.getTokenFromRequest(c)
-//	if err != nil {
-//		logError("userIdentity", err)
-//		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "parse token error"})
-//		return
-//	}
-//
-//	id, err := h.usersService.ParseToken(token)
-//	if err != nil {
-//		logError("userIdentity", err)
-//		c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "accessToken invalid or expired"})
-//		return
-//	}
-//	c.Set(ctxUserID, id)
-//}
-
 func (h *Handler) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := h.getTokenFromRequest(c)

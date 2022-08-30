@@ -73,8 +73,8 @@ func (d *Docs) Delete(ctx context.Context, id int) error {
 }
 
 func (d *Docs) Update(ctx context.Context, userId, id int, inp domain.UpdateDocInput) error {
-	if err := inp.IsValid(); err != nil {
-		return err
+	if !inp.IsValid() {
+		return domain.ErrInvalidUpdateStruct
 	}
 
 	doc, err := d.repo.Update(ctx, userId, id, inp)

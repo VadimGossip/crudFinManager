@@ -114,6 +114,9 @@ func (s *Users) ParseToken(token string) (int, error) {
 
 	return id, nil
 }
+func (s *Users) GetRefreshTokenTTL() time.Duration {
+	return s.refreshTTL
+}
 
 func (s *Users) RefreshTokens(ctx context.Context, refreshToken string) (string, string, error) {
 	token, err := s.tokenRepo.Get(ctx, refreshToken)

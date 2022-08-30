@@ -25,6 +25,9 @@ import (
 // @host localhost:8080
 // @BasePath /
 
+// @securityDefinitions.apikey JWT
+// @in header
+// @name Authorization
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
