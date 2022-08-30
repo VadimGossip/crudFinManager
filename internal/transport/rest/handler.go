@@ -21,8 +21,9 @@ type Docs interface {
 
 type Users interface {
 	SignUp(ctx context.Context, inp domain.SignUpInput) error
-	SignIn(ctx context.Context, inp domain.SignInInput) (string, error)
+	SignIn(ctx context.Context, inp domain.SignInInput) (string, string, error)
 	ParseToken(token string) (int, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (string, string, error)
 }
 
 type Handler struct {
@@ -45,9 +46,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		usersApi.POST("/sign-up", h.signUp)
 		usersApi.GET("/sign-in", h.signIn)
+		usersApi.GET("/refresh", h.refresh)
 	}
 
-	docsApi := router.Group("/docs", h.userIdentity)
+	docsApi := router.Group("/docs")
+	docsApi.Use(h.authMiddleware())
 	{
 		docsApi.POST("", h.createDoc)
 		docsApi.GET("/:id", h.getDocByID)
@@ -55,6 +58,5 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		docsApi.DELETE("/:id", h.deleteDocByID)
 		docsApi.PUT("/:id", h.updateDocByID)
 	}
-
 	return router
 }

@@ -42,8 +42,9 @@ func Run(configDir string) {
 	}
 
 	usersRepo := psql.NewUsers(db)
+	tokensRepo := psql.NewTokens(db)
 	hasher := hash.NewSHA1Hasher(cfg.Auth.Salt)
-	usersService := service.NewUsers(usersRepo, hasher, []byte(cfg.Auth.Secret), cfg.Auth.TokenTTL)
+	usersService := service.NewUsers(usersRepo, tokensRepo, hasher, []byte(cfg.Auth.Secret), cfg.Auth.AccessTokenTTL, cfg.Auth.RefreshTokenTTL)
 
 	docsRepo := psql.NewDocs(db)
 	cache := simpleCache.NewCache()

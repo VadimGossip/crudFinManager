@@ -1,6 +1,14 @@
 package domain
 
+import "time"
+
+type Token struct {
+	ID        int
+	UserID    int
+	Token     string
+	ExpiresAt time.Time
+}
+
 type TokenResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	Token string `json:"accessToken"`
 }

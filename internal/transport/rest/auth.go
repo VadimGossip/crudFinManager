@@ -2,10 +2,9 @@ package rest
 
 import (
 	"errors"
-	"net/http"
-
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func (h *Handler) signUp(c *gin.Context) {
@@ -34,7 +33,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	token, err := h.usersService.SignIn(c.Request.Context(), input)
+	accessToken, refreshToken, err := h.usersService.SignIn(c.Request.Context(), input)
 	if err != nil {
 		logError("signIn", err)
 		if errors.Is(err, domain.ErrUserNotFound) {
@@ -45,5 +44,29 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, domain.TokenResponse{AccessToken: token})
+	http.SetCookie(c.Writer, &http.Cookie{Name: "refresh-token",
+		Value:    refreshToken,
+		HttpOnly: true})
+	c.JSON(http.StatusOK, domain.TokenResponse{Token: accessToken})
+}
+
+func (h *Handler) refresh(c *gin.Context) {
+	cookie, err := c.Cookie("refresh-token")
+	if err != nil {
+		logError("refresh", err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "parse refresh token error"})
+		return
+	}
+
+	accessToken, refreshToken, err := h.usersService.RefreshTokens(c.Request.Context(), cookie)
+	if err != nil {
+		logError("refresh", err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "refresh tokens error"})
+		return
+	}
+
+	http.SetCookie(c.Writer, &http.Cookie{Name: "refresh-token",
+		Value:    refreshToken,
+		HttpOnly: true})
+	c.JSON(http.StatusOK, domain.TokenResponse{Token: accessToken})
 }

@@ -23,14 +23,10 @@ type PostgresConfig struct {
 }
 
 type AuthConfig struct {
-	TokenTTL time.Duration `mapstructure:"token_ttl"`
-	Salt     string
-	Secret   string
-}
-
-type AuthConfig2 struct {
-	Salt   string
-	Secret string
+	AccessTokenTTL  time.Duration `mapstructure:"access_token_ttl"`
+	RefreshTokenTTL time.Duration `mapstructure:"refresh_token_ttl"`
+	Salt            string
+	Secret          string
 }
 
 type Config struct {
