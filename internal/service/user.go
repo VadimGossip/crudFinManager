@@ -29,21 +29,21 @@ type TokensRepository interface {
 	Get(ctx context.Context, token string) (domain.Token, error)
 }
 
-type AuditClient interface {
+type UserAuditClient interface {
 	SendLogRequest(ctx context.Context, req audit.LogItem) error
 }
 
 type Users struct {
 	userRepo    UsersRepository
 	tokenRepo   TokensRepository
-	auditClient AuditClient
+	auditClient UserAuditClient
 	hasher      PasswordHasher
 	hmacSecret  []byte
 	accessTTL   time.Duration
 	refreshTTL  time.Duration
 }
 
-func NewUsers(userRepo UsersRepository, tokenRepo TokensRepository, auditClient AuditClient, hasher PasswordHasher, secret []byte, accessTTL, refreshTTL time.Duration) *Users {
+func NewUsers(userRepo UsersRepository, tokenRepo TokensRepository, auditClient UserAuditClient, hasher PasswordHasher, secret []byte, accessTTL, refreshTTL time.Duration) *Users {
 	return &Users{
 		userRepo:    userRepo,
 		tokenRepo:   tokenRepo,
@@ -89,7 +89,7 @@ func (s *Users) SignUp(ctx context.Context, inp domain.SignUpInput) error {
 		}).Error("failed to send log request:", err)
 	}
 
-	return s.userRepo.Create(ctx, user)
+	return nil
 }
 
 func (s *Users) SignIn(ctx context.Context, inp domain.SignInInput) (string, string, error) {
@@ -106,6 +106,19 @@ func (s *Users) SignIn(ctx context.Context, inp domain.SignInInput) (string, str
 
 		return "", "", err
 	}
+
+	if err := s.auditClient.SendLogRequest(ctx, audit.LogItem{
+		Action:    audit.ACTION_LOGIN,
+		Entity:    audit.ENTITY_USER,
+		EntityID:  int64(user.ID),
+		AuthorID:  int64(user.ID),
+		Timestamp: time.Now(),
+	}); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"method": "Users.SignIn",
+		}).Error("failed to send log request:", err)
+	}
+
 	return s.generateTokens(ctx, user.ID)
 }
 

@@ -57,7 +57,7 @@ func Run(configDir string) {
 
 	docsRepo := psql.NewDocs(db)
 	cache := simpleCache.NewCache()
-	docsService := service.NewBooks(docsRepo, cache)
+	docsService := service.NewBooks(docsRepo, auditClient, cache)
 
 	handler := rest.NewHandler(usersService, docsService)
 	server := http.NewServer()

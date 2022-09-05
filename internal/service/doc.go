@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	audit "github.com/VadimGossip/grpcAuditLog/pkg/domain"
 	"github.com/VadimGossip/simpleCache"
+	"github.com/sirupsen/logrus"
 	"strconv"
 	"time"
 
@@ -18,14 +20,20 @@ type DocsRepository interface {
 }
 
 type Docs struct {
-	repo  DocsRepository
-	cache simpleCache.Cashier
+	repo        DocsRepository
+	auditClient DocsAuditClient
+	cache       simpleCache.Cashier
 }
 
-func NewBooks(repo DocsRepository, cache simpleCache.Cashier) *Docs {
+type DocsAuditClient interface {
+	SendLogRequest(ctx context.Context, req audit.LogItem) error
+}
+
+func NewBooks(repo DocsRepository, auditClient DocsAuditClient, cache simpleCache.Cashier) *Docs {
 	return &Docs{
-		repo:  repo,
-		cache: cache,
+		repo:        repo,
+		auditClient: auditClient,
+		cache:       cache,
 	}
 }
 
@@ -44,10 +52,22 @@ func (d *Docs) Create(ctx context.Context, userId int, doc domain.Doc) (int, err
 	}
 	d.cache.Set(strconv.Itoa(doc.ID), doc, time.Second*10)
 
+	if err := d.auditClient.SendLogRequest(ctx, audit.LogItem{
+		Action:    audit.ACTION_CREATE,
+		Entity:    audit.ENTITY_DOC,
+		EntityID:  int64(doc.ID),
+		AuthorID:  int64(doc.AuthorID),
+		Timestamp: time.Now(),
+	}); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"method": "Docs.Create",
+		}).Error("failed to send log request:", err)
+	}
+
 	return doc.ID, nil
 }
 
-func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
+func (d *Docs) GetDocByID(ctx context.Context, userId, id int) (domain.Doc, error) {
 	doc, err := d.cache.Get(strconv.Itoa(id))
 	if err != nil {
 		doc, err = d.repo.GetDocByID(ctx, id)
@@ -57,6 +77,18 @@ func (d *Docs) GetDocByID(ctx context.Context, id int) (domain.Doc, error) {
 		d.cache.Set(strconv.Itoa(id), doc, time.Second*10)
 		return doc.(domain.Doc), nil
 	}
+	if err := d.auditClient.SendLogRequest(ctx, audit.LogItem{
+		Action:    audit.ACTION_GET,
+		Entity:    audit.ENTITY_DOC,
+		EntityID:  int64(doc.(domain.Doc).ID),
+		AuthorID:  int64(userId),
+		Timestamp: time.Now(),
+	}); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"method": "Docs.GetDocByID",
+		}).Error("failed to send log request:", err)
+	}
+
 	return doc.(domain.Doc), nil
 }
 
@@ -64,11 +96,22 @@ func (d *Docs) GetAllDocs(ctx context.Context) ([]domain.Doc, error) {
 	return d.repo.GetAllDocs(ctx)
 }
 
-func (d *Docs) Delete(ctx context.Context, id int) error {
+func (d *Docs) Delete(ctx context.Context, userId, id int) error {
 	if err := d.repo.Delete(ctx, id); err != nil {
 		return err
 	}
 	d.cache.Delete(strconv.Itoa(id))
+	if err := d.auditClient.SendLogRequest(ctx, audit.LogItem{
+		Action:    audit.ACTION_DELETE,
+		Entity:    audit.ENTITY_DOC,
+		EntityID:  int64(id),
+		AuthorID:  int64(userId),
+		Timestamp: time.Now(),
+	}); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"method": "Docs.Delete",
+		}).Error("failed to send log request:", err)
+	}
 	return nil
 }
 
@@ -82,6 +125,18 @@ func (d *Docs) Update(ctx context.Context, userId, id int, inp domain.UpdateDocI
 		return err
 	}
 	d.cache.Set(strconv.Itoa(id), doc, time.Second*10)
+
+	if err := d.auditClient.SendLogRequest(ctx, audit.LogItem{
+		Action:    audit.ACTION_UPDATE,
+		Entity:    audit.ENTITY_DOC,
+		EntityID:  int64(id),
+		AuthorID:  int64(doc.UpdaterID),
+		Timestamp: time.Now(),
+	}); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"method": "Docs.Delete",
+		}).Error("failed to send log request:", err)
+	}
 
 	return nil
 }
