@@ -28,9 +28,10 @@ type AuthConfig struct {
 }
 
 type Config struct {
-	Server   NetServerConfig
-	Postgres PostgresConfig
-	Auth     AuthConfig
+	Server      NetServerConfig
+	AuditServer NetServerConfig
+	Postgres    PostgresConfig
+	Auth        AuthConfig
 }
 
 func parseConfigFile(configDir string) error {
@@ -46,6 +47,9 @@ func parseConfigFile(configDir string) error {
 
 func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("serverListener.tcp", &cfg.Server); err != nil {
+		return err
+	}
+	if err := viper.UnmarshalKey("auditServer.tcp", &cfg.AuditServer); err != nil {
 		return err
 	}
 	if err := viper.UnmarshalKey("auth", &cfg.Auth); err != nil {
