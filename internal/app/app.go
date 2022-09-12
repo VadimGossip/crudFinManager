@@ -6,6 +6,7 @@ import (
 	"github.com/VadimGossip/crudFinManager/internal/repository/psql"
 	"github.com/VadimGossip/crudFinManager/internal/server/http"
 	"github.com/VadimGossip/crudFinManager/internal/service"
+	"github.com/VadimGossip/crudFinManager/internal/transport/grps"
 	"github.com/VadimGossip/crudFinManager/internal/transport/rest"
 	"github.com/VadimGossip/crudFinManager/pkg/database"
 	"github.com/VadimGossip/crudFinManager/pkg/hash"
@@ -39,7 +40,7 @@ func Run(configDir string) {
 	if err != nil {
 		logrus.Fatalf("Config initialization error %s", err)
 	}
-	db, err := database.NewPostgresConnection(cfg.Postgres)
+	db, err := database.NewPostgresConnection(cfg.Postgres.Host, cfg.Postgres.Username, cfg.Postgres.Password, cfg.Postgres.Name, cfg.Postgres.SSLMode, cfg.Postgres.Port)
 	if err != nil {
 		logrus.Fatalf("Postgres connection error %s", err)
 	}
@@ -47,11 +48,16 @@ func Run(configDir string) {
 	usersRepo := psql.NewUsers(db)
 	tokensRepo := psql.NewTokens(db)
 	hasher := hash.NewSHA1Hasher(cfg.Auth.Salt)
-	usersService := service.NewUsers(usersRepo, tokensRepo, hasher, []byte(cfg.Auth.Secret), cfg.Auth.AccessTokenTTL, cfg.Auth.RefreshTokenTTL)
+	auditClient, err := grps.NewClient(cfg.AuditServer.Host, cfg.AuditServer.Port)
+	if err != nil {
+		logrus.Fatalf("error occured while creating client for audit server %s", err)
+	}
+
+	usersService := service.NewUsers(usersRepo, tokensRepo, auditClient, hasher, []byte(cfg.Auth.Secret), cfg.Auth.AccessTokenTTL, cfg.Auth.RefreshTokenTTL)
 
 	docsRepo := psql.NewDocs(db)
 	cache := simpleCache.NewCache()
-	docsService := service.NewBooks(docsRepo, cache)
+	docsService := service.NewBooks(docsRepo, auditClient, cache)
 
 	handler := rest.NewHandler(usersService, docsService)
 	server := http.NewServer()

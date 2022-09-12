@@ -62,6 +62,13 @@ func (h *Handler) createDoc(c *gin.Context) {
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [get]
 func (h *Handler) getDocByID(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		logError("getDocByID", err)
+		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "can't get user id"})
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logError("getDocByID", err)
@@ -69,7 +76,7 @@ func (h *Handler) getDocByID(c *gin.Context) {
 		return
 	}
 
-	doc, err := h.docsService.GetDocByID(c.Request.Context(), id)
+	doc, err := h.docsService.GetDocByID(c.Request.Context(), userId, id)
 	if err != nil {
 		logError("getDocByID", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "doc search"})
@@ -115,6 +122,13 @@ func (h *Handler) getAllDocs(c *gin.Context) {
 // @Failure 500   {object} domain.ErrorResponse
 // @Router /docs/{id} [delete]
 func (h *Handler) deleteDocByID(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		logError("deleteDocByID", err)
+		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "can't get user id"})
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logError("deleteDocByID", err)
@@ -122,7 +136,7 @@ func (h *Handler) deleteDocByID(c *gin.Context) {
 		return
 	}
 
-	if err := h.docsService.Delete(c.Request.Context(), id); err != nil {
+	if err := h.docsService.Delete(c.Request.Context(), userId, id); err != nil {
 		logError("deleteDocByID", err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "delete doc"})
 		return

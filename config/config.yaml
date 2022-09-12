@@ -3,6 +3,11 @@ serverListener:
     host: "127.0.0.1"
     port: 8080
 
+auditServer:
+  tcp:
+    host: "127.0.0.1"
+    port: 9000
+
 auth:
   access_token_ttl: 15m
   refresh_token_ttl: 720h

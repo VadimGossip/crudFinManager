@@ -3,7 +3,6 @@ package psql
 import (
 	"context"
 	"database/sql"
-
 	"github.com/VadimGossip/crudFinManager/internal/domain"
 )
 
