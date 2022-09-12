@@ -1,10 +1,9 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/viper"
-	"log"
+	"time"
 )
 
 type NetServerConfig struct {
@@ -21,9 +20,17 @@ type PostgresConfig struct {
 	Password string
 }
 
+type AuthConfig struct {
+	AccessTokenTTL  time.Duration `mapstructure:"access_token_ttl"`
+	RefreshTokenTTL time.Duration `mapstructure:"refresh_token_ttl"`
+	Salt            string
+	Secret          string
+}
+
 type Config struct {
 	Server   NetServerConfig
 	Postgres PostgresConfig
+	Auth     AuthConfig
 }
 
 func parseConfigFile(configDir string) error {
@@ -41,6 +48,9 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("serverListener.tcp", &cfg.Server); err != nil {
 		return err
 	}
+	if err := viper.UnmarshalKey("auth", &cfg.Auth); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -48,18 +58,14 @@ func setFromEnv(cfg *Config) error {
 	if err := envconfig.Process("db", &cfg.Postgres); err != nil {
 		return err
 	}
+
+	if err := envconfig.Process("auth", &cfg.Auth); err != nil {
+		return err
+	}
 	return nil
 }
 
-func readFromEnv() {
-	err := godotenv.Load("F:\\Workspace\\Go\\Clean\\crudFinManager\\.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
-
 func Init(configDir string) (*Config, error) {
-	readFromEnv()
 	viper.SetConfigName("config")
 	if err := parseConfigFile(configDir); err != nil {
 		return nil, err
@@ -72,13 +78,5 @@ func Init(configDir string) (*Config, error) {
 	if err := setFromEnv(&cfg); err != nil {
 		return nil, err
 	}
-
 	return &cfg, nil
-}
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 }

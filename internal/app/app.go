@@ -2,18 +2,18 @@ package app
 
 import (
 	"context"
-	"github.com/VadimGossip/simpleCache"
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/VadimGossip/crudFinManager/internal/config"
 	"github.com/VadimGossip/crudFinManager/internal/repository/psql"
 	"github.com/VadimGossip/crudFinManager/internal/server/http"
 	"github.com/VadimGossip/crudFinManager/internal/service"
 	"github.com/VadimGossip/crudFinManager/internal/transport/rest"
 	"github.com/VadimGossip/crudFinManager/pkg/database"
+	"github.com/VadimGossip/crudFinManager/pkg/hash"
+	"github.com/VadimGossip/simpleCache"
 	"github.com/sirupsen/logrus"
+	"os"
+	"os/signal"
+	"syscall"
 
 	_ "github.com/lib/pq"
 )
@@ -25,6 +25,9 @@ import (
 // @host localhost:8080
 // @BasePath /
 
+// @securityDefinitions.apikey JWT
+// @in header
+// @name Authorization
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
@@ -41,10 +44,16 @@ func Run(configDir string) {
 		logrus.Fatalf("Postgres connection error %s", err)
 	}
 
-	repo := psql.NewDocs(db)
+	usersRepo := psql.NewUsers(db)
+	tokensRepo := psql.NewTokens(db)
+	hasher := hash.NewSHA1Hasher(cfg.Auth.Salt)
+	usersService := service.NewUsers(usersRepo, tokensRepo, hasher, []byte(cfg.Auth.Secret), cfg.Auth.AccessTokenTTL, cfg.Auth.RefreshTokenTTL)
+
+	docsRepo := psql.NewDocs(db)
 	cache := simpleCache.NewCache()
-	docsService := service.NewBooks(repo, cache)
-	handler := rest.NewHandler(docsService)
+	docsService := service.NewBooks(docsRepo, cache)
+
+	handler := rest.NewHandler(usersService, docsService)
 	server := http.NewServer()
 
 	go func() {
